@@ -6,13 +6,11 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
-const authRoutes = require("./routes/authRoutes");
 
-app.use("/api/auth", authRoutes);
 // ======================
-// ✅ MIDDLEWARE
+// ✅ MIDDLEWARE (FIRST)
 // ======================
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // ======================
@@ -25,10 +23,12 @@ mongoose.connect(process.env.MONGO_URI)
 // ======================
 // ✅ ROUTES
 // ======================
+const authRoutes = require("./routes/authRoutes");
 const admissionRoutes = require("./routes/admissionRoutes");
 const noticeRoutes = require("./routes/noticeRoutes");
 const galleryRoutes = require("./routes/galleryRoutes");
 
+app.use("/api/auth", authRoutes);
 app.use("/api/admissions", admissionRoutes);
 app.use("/api/notices", noticeRoutes);
 app.use("/api/gallery", galleryRoutes);
