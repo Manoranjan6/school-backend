@@ -1,4 +1,6 @@
-// Load environment variables
+// ======================
+// ✅ LOAD ENV
+// ======================
 require("dotenv").config();
 
 const express = require("express");
@@ -7,46 +9,76 @@ const cors = require("cors");
 
 const app = express();
 
-// ======================
-// ✅ MIDDLEWARE (FIRST)
-// ======================
-app.use(cors({ origin: "*" }));
-app.use(express.json());
 
 // ======================
-// ✅ DATABASE CONNECTION
+// ✅ MIDDLEWARE
 // ======================
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.log("❌ DB Error:", err));
+app.use(cors({
+  origin: process.env.CLIENT_URL || "*", // 🔐 restrict in production
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
+app.use(express.json({ limit: "10mb" })); // 🔥 prevent payload abuse
+
+
+// ======================
+// ✅ DATABASE CONNECTION (ROBUST)
+// ======================
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      dbName: "schoolDB"
+    });
+
+    console.log("✅ MongoDB Connected");
+
+  } catch (err) {
+    console.error("❌ DB Connection Failed:", err.message);
+    process.exit(1); // 🔥 stop server if DB fails
+  }
+};
+
+connectDB();
+
 
 // ======================
 // ✅ ROUTES
 // ======================
-const authRoutes = require("./routes/authRoutes");
-const admissionRoutes = require("./routes/admissionRoutes");
-const noticeRoutes = require("./routes/noticeRoutes");
-const galleryRoutes = require("./routes/galleryRoutes");
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/admissions", require("./routes/admissionRoutes"));
+app.use("/api/notices", require("./routes/noticeRoutes"));
+app.use("/api/gallery", require("./routes/galleryRoutes"));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/admissions", admissionRoutes);
-app.use("/api/notices", noticeRoutes);
-app.use("/api/gallery", galleryRoutes);
 
 // ======================
-// ✅ DEFAULT ROUTE
+// ✅ HEALTH CHECK
 // ======================
 app.get("/", (req, res) => {
   res.send("🚀 School Server is Running");
 });
 
+
 // ======================
-// ✅ ERROR HANDLING
+// ❌ 404 HANDLER (YOU MISSED THIS)
+// ======================
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+
+// ======================
+// ❌ GLOBAL ERROR HANDLER
 // ======================
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: "Something went wrong" });
+  console.error("🔥 Error:", err.message);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error"
+  });
 });
+
 
 // ======================
 // ✅ START SERVER
@@ -55,4 +87,5 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🔥 Server running on port ${PORT}`);
+  console.log(`🌐 http://localhost:${PORT}`);
 });
