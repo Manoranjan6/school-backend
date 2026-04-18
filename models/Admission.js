@@ -1,14 +1,43 @@
 const mongoose = require("mongoose");
 
 const admissionSchema = new mongoose.Schema({
-  studentName: String,
-  classSeeking: String,
-  dob: String,
-  parentName: String,
-  phone: String,
-  email: String,
+  studentName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+
+  classSeeking: {
+    type: String,
+    required: true
+  },
+
+  dob: {
+    type: Date,
+    required: true
+  },
+
+  parentName: {
+    type: String,
+    required: true
+  },
+
+  phone: {
+    type: String,
+    required: true,
+    match: /^[0-9]{10}$/
+  },
+
+  email: {
+    type: String,
+    lowercase: true,
+    trim: true
+  },
+
   presentSchool: String,
+
   message: String,
+
   submittedAt: {
     type: Date,
     default: Date.now
