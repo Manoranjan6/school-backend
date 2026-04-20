@@ -28,7 +28,7 @@ app.use(express.json({ limit: "10mb" })); // 🔥 prevent payload abuse
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
-      dbName: "schoolDB"
+      dbName: "schooldb"
     });
 
     console.log("✅ MongoDB Connected");
