@@ -28,9 +28,13 @@ router.get("/all", auth, async (req, res) => {
 });
 
 // ❌ DELETE
-router.delete("/:id", auth, async (req, res) => {
-  await Notice.findByIdAndDelete(req.params.id);
-  res.json({ message: "Deleted" });
+router.delete("/:id", async (req, res) => {
+  try {
+    await Notice.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Error" });
+  }
 });
 
 module.exports = router;
