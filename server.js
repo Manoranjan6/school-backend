@@ -93,3 +93,5 @@ app.listen(PORT, () => {
 const dashboardRoutes = require("./routes/dashboardRoutes");
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static("uploads"));
+const jobRoutes = require("./routes/jobRoutes");
+app.use("/api/jobs", jobRoutes);
